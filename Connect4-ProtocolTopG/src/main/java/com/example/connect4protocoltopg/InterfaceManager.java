@@ -334,3 +334,266 @@ public class InterfaceManager {
         hbox.setAlignment(Pos.CENTER_RIGHT);
         return hbox;
     }
+    void markPlayer() {
+        if (game.getPlayer()==2) {
+            text[1].setFont(Font.font("Bernard MT Condensed", 30));
+            text[1].setTextFill(Color.RED);
+            text[3].setFont(Font.font("Bernard MT Condensed", 20));
+        }
+        if (game.getPlayer()==1) {
+            text[1].setFont(Font.font("Bernard MT Condensed", 20));
+            text[3].setFont(Font.font("Bernard MT Condensed", 30));
+            text[3].setTextFill(Color.YELLOW);
+        }
+    }
+    //-------------------------------------------------------------
+    public void resetPitch() {
+        for (int i=0; i<7; i++) {
+            for (int j=0; j<6; j++) {
+                circle[i][j].setVisible(false);
+            }
+        }
+    }
+    //-------------------------------------------------------------
+    public void handleGameEnd(boolean winner) {
+        System.out.println("HandleGameEnd called. Winner: " + winner);
+        System.out.println("Current Player: " + game.getPlayer());
+
+        stopButton();
+        if (winner) { // Prüfe, ob es wirklich einen Gewinner gibt
+            if (game.searchingWinner()) { // Verifiziere, dass der Gewinner ein 4-Gewinnt hat
+                if (game.getPlayer() == 1) {
+                    game.incrementScore(); // Punktzahl von Spieler 1 erhöhen
+                } else if (game.getPlayer() == 2) {
+                    game.incrementScore(); // Punktzahl von Spieler 2 erhöhen
+                }
+                updateScoreDisplay(); // Scoreanzeige aktualisieren
+                popupwinner.popupWinner(); // Zeige den Gewinner-Popup an
+            }
+        } else {
+            pop.popupDraw(); // Falls unentschieden, zeige Draw-Popup an
+        }
+    }
+
+
+    //-------------------------------------------------------------
+    void stopButton() {
+        button[0].setDisable(true);
+        button[1].setDisable(true);
+        button[2].setDisable(true);
+        button[3].setDisable(true);
+        button[4].setDisable(true);
+        button[5].setDisable(true);
+        button[6].setDisable(true);
+    }
+    //-------------------------------------------------------------
+
+    void setOnAction(int buttonNumber) {
+        game.nextPlayer();
+        game.refreshPitch(buttonNumber, game.getPlayer());
+
+        // Debug: Aktueller Spieler und Spielfeldstatus
+        //System.out.println("Player after move: " + game.getPlayer());
+        //System.out.println("Pitch status: ");
+        for (int[] row : game.pitch) {
+            System.out.println(java.util.Arrays.toString(row));
+        }
+
+        updateCircle(buttonNumber); // Spielstein aktualisieren
+        disableButtonIfNeeded(buttonNumber);
+
+        // Überprüfe auf Gewinner
+        if (game.searchingWinner()) {
+            // Debug: Gewinner gefunden
+            System.out.println("Winner: " + game.searchingWinner());
+            handleGameEnd(true); // Gewinner behandeln
+            return;
+        }
+
+        // Überprüfe auf Unentschieden
+        if (game.lookingForDraw()) {
+            handleGameEnd(false); // Unentschieden behandeln
+            return;
+        }
+
+        // Markiere den nächsten Spieler
+        markPlayer();
+    }
+
+    //-------------------------------------------------------------
+    // Aktualisiert den Spielstein im Raster
+    private void updateCircle(int buttonNumber) {
+        int y = game.getCoordinateY();// ruft y koridinate auf
+        Circle currentCircle = circle[buttonNumber][y]; //Greift auf den entsprechenden Kreis im 2D-Array circle zu
+
+        //Sichtbar machen und Farben setzen:
+        currentCircle.setVisible(true);
+        currentCircle.setStroke(game.pointColor(game.getPlayer()));
+        currentCircle.setFill(game.pointColor(game.getPlayer()));
+    }
+    //-------------------------------------------------------------
+    // Deaktiviert den Button, wenn die Spalte voll ist
+    private void disableButtonIfNeeded(int buttonNumber) {
+        if (game.getCoordinateY() == 0) {
+            //game.getCoordinateY():
+            //Gibt die nächste freie Zeile in der angegebenen Spalte zurück.
+            //Wenn diese 0 ist, bedeutet das, dass die Spalte keine freien Felder mehr hat (voll ist).
+            button[buttonNumber].setDisable(true);
+            //Der Button für die angegebene Spalte (buttonNumber) wird deaktiviert, sodass keine weiteren Züge in dieser Spalte möglich sind
+        }
+    }
+    //-------------------------------------------------------------
+    void popupSetNames() {
+
+        //Erstellt ein neues Fenster (Stage).
+        //Modality: Setzt das Fenster als modales Fenster (APPLICATION_MODAL), sodass der Benutzer es schließen oder bearbeiten muss, bevor er zur Hauptanwendung zurückkehren kann.
+        //Der Fenstertitel wird auf "Player Input" gesetzt.
+        Stage window = new Stage();
+        window.initModality(Modality.APPLICATION_MODAL);
+        window.setTitle("Player Input");
+
+        // Bild hinzufügen, wir von der Resource Hinzugefügt
+        Image image = new Image(getClass().getResource("/com/example/Idontknow/Daco_1087247.png").toExternalForm());
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(500); // Breite des Bildes anpassen
+        imageView.setPreserveRatio(true); // Seitenverhältnis beibehalten
+        imageView.setSmooth(true); // Glatte Kanten
+        imageView.setCache(true); // Bild cachen für bessere Performance
+
+        // Alles Label, werden hier entworfen
+        Label label1 = new Label("Enter name of player");
+        label1.setFont(new Font("Bernard MT Condensed", 20));
+        label1.setTextFill(Color.web("#5D4E84"));
+        label1.setAlignment(Pos.CENTER);
+
+        Label label2 = new Label("Player 1: ");
+        label2.setFont(new Font("Bernard MT Condensed", 20));
+        label2.setTextFill(Color.web("#5D4E84"));
+
+        Label label3 = new Label("Player 2: ");
+        label3.setFont(new Font("Bernard MT Condensed", 20));
+        label3.setTextFill(Color.web("#5D4E84"));
+
+        TextField textField1 = new TextField();
+        textField1.setPromptText("name player 1");
+        textField1.setFont(Font.font("Bernard MT Condensed", 20));
+
+        TextField textField2 = new TextField();
+        textField2.setFont(Font.font("Bernard MT Condensed", 20));
+        textField2.setPromptText("name player 2");
+
+        // Button save
+        Button button1 = new Button("Save");
+        button1.setFont(Font.font("Bernard MT Condensed", 20));
+        button1.setTextFill(Color.web("#5D4E84"));
+        button1.setStyle(
+                "-fx-background-color: #79CDF0 ;" +
+                        "-fx-text-fill: #0000FF;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 5;"
+        );
+
+        button1.disableProperty().bind(
+                Bindings.isEmpty(textField1.textProperty())
+                        .or(Bindings.isEmpty(textField2.textProperty()))
+        );
+
+        //Speichern der Namen und Schließen des Fensters:
+        button1.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                game.setFirstPlayer(textField1.getText().toString());
+                game.setSecondPlayer(textField2.getText().toString());
+                window.close();
+                root.setLeft(getLeftHBox());
+                root.setRight(getRightHBox());
+            }
+        });
+
+        button1.setOnAction(event -> {
+            game.setFirstPlayer(textField1.getText().toString());
+            game.setSecondPlayer(textField2.getText().toString());
+            window.close();
+            root.setLeft(getLeftHBox());
+            root.setRight(getRightHBox());
+        });
+
+        button1.setOnMouseEntered(e -> button1.setStyle(
+                "-fx-background-color: #79CDF0 ;" +
+                        "-fx-text-fill: #0000FF;" +
+                        "-fx-border-color: #0000FF;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 5;"
+        ));
+        button1.setOnMouseExited(e -> button1.setStyle(
+                "-fx-background-color: #79CDF0 ;" +
+                        "-fx-text-fill: #0000FF;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 5;"
+        ));
+
+        // Button Exit
+        Button button2 = new Button("Exit");
+        button2.setFont(Font.font("Bernard MT Condensed", 20));
+        button2.setTextFill(Color.web("#5D4E84"));
+        button2.setStyle(
+                "-fx-background-color: #79CDF0 ;" +
+                        "-fx-text-fill: #0000FF;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 5;"
+        );
+
+        button2.setOnMouseEntered(e -> button2.setStyle(
+                "-fx-background-color: #79CDF0 ;" +
+                        "-fx-text-fill: #0000FF;" +
+                        "-fx-border-color: #0000FF;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 5;"
+        ));
+        button2.setOnMouseExited(e -> button2.setStyle(
+                "-fx-background-color: #79CDF0 ;" +
+                        "-fx-text-fill: #0000FF;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 5;"
+        ));
+        button2.setOnAction(event -> game.exitGame());
+
+
+        // Anordnung der Labels und Textfelder (GridPane):
+        GridPane grid = new GridPane();
+        grid.add(label2, 0, 0);
+        grid.add(textField1, 1, 0);
+        grid.add(label3, 0, 1);
+        grid.add(textField2, 1, 1);
+        grid.setHgap(10); // Horizontaler Abstand zwischen den Zellen
+        grid.setVgap(10); // Vertikaler Abstand zwischen den Zellen
+        grid.setAlignment(Pos.CENTER); // Das gesamte GridPane zentrieren
+
+
+        HBox hbox = new HBox(10, button1, button2);
+        hbox.setAlignment(Pos.BOTTOM_RIGHT);
+
+
+        VBox vbox = new VBox(20, imageView, label1, grid, hbox);
+        vbox.setPadding(new Insets(10, 10, 10, 10));
+        vbox.setAlignment(Pos.CENTER);
+
+
+        StackPane pane = new StackPane(vbox); // StackPane sorgt für zentrierte Ausrichtung
+        pane.setStyle("-fx-background-color: #ADD8E6;");
+        pane.setAlignment(Pos.CENTER); // Zentriert die VBox im Fenster
+
+        Scene windowScene = new Scene(pane, 550, 530);
+        window.setScene(windowScene);
+        window.show();
+
+    }
+
+    public void updateScoreDisplay() {
+        root.setRight(getRightHBox());
+    }
+
+}
