@@ -58,6 +58,7 @@ public class InterfaceManager {
         root.setStyle("-fx-background-color: #ADD8E6;");
     }
 
+
     /**
      * Konfiguriert die Szene für die Benutzeroberfläche des Spiels und verknüpft sie mit dem angegebenen `Stage`.
      *
@@ -207,6 +208,7 @@ public class InterfaceManager {
         // Gib den zentralen Bereich zurück
         return vbox;
     }
+
     //-------------------------------------------------------------
     /**
      * Erstellt den linken Bereich der Benutzeroberfläche mit Spielerinformationen.
@@ -431,6 +433,7 @@ public class InterfaceManager {
             }
         }
     }
+
     /**
      * Behandelt das Spielende, indem der Gewinner oder ein Unentschieden festgestellt wird.
      *
@@ -453,6 +456,9 @@ public class InterfaceManager {
             pop.popupDraw();
         }
     }
+
+
+
 
     //-------------------------------------------------------------
     /**
@@ -511,6 +517,7 @@ public class InterfaceManager {
         // Markiere den nächsten Spieler für den nächsten Zug
         markPlayer();
     }
+
 
     //-------------------------------------------------------------
     /**
@@ -691,6 +698,7 @@ public class InterfaceManager {
         window.setScene(windowScene);
         window.show();
     }
+
 
     public void updateScoreDisplay() {
         root.setRight(getRightHBox());
